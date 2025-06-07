@@ -3,6 +3,9 @@ package com.example
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.example.route.authRoute
+import com.example.route.favouritesRoutes
+import com.example.route.popularRoute
+import com.example.route.sneakersRoute
 import io.ktor.resources.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -17,6 +20,9 @@ import kotlinx.serialization.Serializable
 fun Application.configureRouting() {
     routing {
         authRoute()
+        sneakersRoute()
+        popularRoute()
+        favouritesRoutes()
     }
 }
 
