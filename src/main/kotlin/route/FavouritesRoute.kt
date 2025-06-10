@@ -29,6 +29,15 @@ var favouritesList = mutableListOf(
         user_id = 1
     ),
 
+    Favourites(
+        sneakers_id = 8,
+        user_id = 2
+    ),
+
+    Favourites(
+        sneakers_id = 6,
+        user_id = 2
+    )
     )
 
 

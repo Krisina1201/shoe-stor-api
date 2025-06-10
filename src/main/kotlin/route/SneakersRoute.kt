@@ -72,6 +72,26 @@ val sneakersList = mutableListOf(
         description = "Китайские скороходы",
         category = "Tennis"
     ),
+
+    Sneakers(
+        id = 7,
+        productName = "blablabla",
+        cost = "1000",
+        count = 300,
+        photo = "без фото",
+        description = "Китайские скороходы",
+        category = "Tennis"
+    ),
+
+    Sneakers(
+        id = 8,
+        productName = "pypypypy",
+        cost = "1",
+        count = 300,
+        photo = "без фото",
+        description = "Китайские скороходы",
+        category = "Tennis"
+    ),
 )
 
 fun Route.sneakersRoute() {

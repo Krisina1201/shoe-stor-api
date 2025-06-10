@@ -2,6 +2,7 @@ package com.example.route
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.example.useCase.FavoriteRepository
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -10,6 +11,16 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import java.util.*
+
+@Serializable
+data class UserWithItem(
+    val userId: Int,
+    val userName: String,
+    val email: String,
+    val password: String,
+    val favourites: MutableList<Sneakers?>? = null,
+    //val basket: MutableList<Sneakers>
+)
 
 @Serializable
 data class User(
@@ -38,9 +49,17 @@ val userList = mutableListOf(
         userName = "Пупка",
         email = "123@mail.ru",
         password = "12345"
+    ),
+
+    User (
+        userId = 2,
+        userName = "Пупка",
+        email = "9876@mail.ru",
+        password = "9876"
     )
 )
 
+var favoriteRepository = FavoriteRepository();
 
 private fun generateToken(user: User, environment: ApplicationEnvironment): String {
     val jwtAudience = environment.config.property("jwt.audience").getString()
@@ -67,8 +86,17 @@ fun Route.authRoute() {
             return@post
         }
 
-        val token = generateToken(user, environment)
-        call.respond(mapOf("token" to token))
+        val userFavourites = favoriteRepository.convertIdFavorite(favoriteRepository.getFavoriteByIdUser(user.userId))
+
+        val userWithItem = UserWithItem(
+            userId = user.userId,
+            userName = user.userName,
+            email = user.email,
+            password = user.password,
+            favourites = userFavourites
+        )
+
+        call.respond(userWithItem)
     }
 
     post("/registration") {
@@ -79,16 +107,25 @@ fun Route.authRoute() {
             return@post
         }
 
-        val newUser = User(
+        val user = User(
             userId = userList.size + 1,
             userName = userRequest.userName,
             password = userRequest.password,
-            email = userRequest.email
+            email = userRequest.email,
         )
-        userList.add(newUser)
+        userList.add(user)
 
-        val token = generateToken(newUser, environment)
-        call.respond(mapOf("token" to token))
+        //val fav = favoriteRepository.convertIdFavorite(favoriteRepository.getFavoriteByIdUser(user.userId))
+
+        val userWithItem = UserWithItem(
+            userId = user.userId,
+            userName = user.userName,
+            email = user.email,
+            password = user.password,
+            favourites = null
+        )
+
+        call.respond(userWithItem)
     }
 
     get("/allUsers") {
@@ -96,16 +133,51 @@ fun Route.authRoute() {
         call.respond(users)
     }
 
+    get("/infoUser/{userId}") {
+        try {
+
+            val user_id = call.parameters["userId"]?.toIntOrNull()
+                ?: throw IllegalArgumentException("Invalid user ID")
+
+            val user = favoriteRepository.findUserByID(user_id)
+
+            val favouritesUser = favoriteRepository.convertIdFavorite(favoriteRepository.getFavoriteByIdUser(user_id))
+
+            val newUser = UserWithItem(
+                userId = user?.userId ?: 0,
+                userName = user?.userName ?: "доздраздпердра",
+                email = user?.email ?: "",
+                password = user?.password ?: "",
+                favourites = favouritesUser
+
+            )
+
+            call.respond(newUser)
+        } catch (e: Exception) {
+            call.respond(e)
+        }
+    }
+
     authenticate("auth-jwt") {
         get("/profile/{userId}") {
-            val userId = call.pathParameters["userId"]?.toIntOrNull()
-            val user = userId?.let { id -> userList.firstOrNull { it.userId == id } }
+            var favoriteRepository = FavoriteRepository();
+            val user_id = call.parameters["userId"]?.toIntOrNull()
+                ?: throw IllegalArgumentException("Invalid user ID")
 
-            if (user != null) {
-                call.respond(user)
-            } else {
-                call.respond(HttpStatusCode.NotFound)
-            }
+            val user = favoriteRepository.findUserByID(user_id)
+
+            val favouritesUser = favoriteRepository.convertIdFavorite(favoriteRepository.getFavoriteByIdUser(user_id))
+
+            val newUser = UserWithItem(
+                userId = user?.userId ?: 0,
+                userName = user?.userName ?: "доздраздпердра",
+                email = user?.email ?: "",
+                password = user?.password ?: "",
+                favourites = favouritesUser
+
+            )
+
+            call.respond(newUser)
         }
     }
 }

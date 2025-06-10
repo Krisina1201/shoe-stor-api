@@ -5,7 +5,7 @@ import com.example.route.*
 
 class FavoriteRepository: IFavoriteRepository {
     override fun getFavoriteByIdUser(userId: Int?): List<Favourites> {
-        var sneakersById = favouritesList.filter { it.user_id == userId }
+        val sneakersById = favouritesList.filter { it.user_id == userId }
         return sneakersById
     }
 
