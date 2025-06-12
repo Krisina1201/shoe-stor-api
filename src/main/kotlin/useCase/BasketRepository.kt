@@ -2,6 +2,7 @@ package com.example.useCase
 
 import com.example.route.Basket
 import com.example.route.Sneakers
+import com.example.route.SneakersInBasket
 import com.example.route.basketList
 
 class BasketRepository: IBasketRepository {
@@ -29,11 +30,14 @@ class BasketRepository: IBasketRepository {
 
     }
 
-    override fun convertIdBasket(shoeList: List<Basket>):MutableList<Sneakers?> {
-        val list = mutableListOf<Sneakers?>()
+    override fun convertIdBasket(shoeList: List<Basket>):MutableList<SneakersInBasket?> {
+        val list = mutableListOf<SneakersInBasket?>()
         shoeList.forEach{
             val shTitle = favoriteRepository.findShoeById(it.sneakersId)
-            list.add(shTitle)
+            list.add(SneakersInBasket(
+                sneakers = shTitle,
+                countInBasket = it.count
+            ))
         }
         return list
     }
@@ -45,14 +49,16 @@ class BasketRepository: IBasketRepository {
             }
             if (basketList[index].count == basket.count) {
                 basketList.removeAt(index)
+                return true
             } else if (basketList[index].count > basket.count) {
                 basketList[index].count -= basket.count
+                return true
             } else {
                 return false
             }
-            return true
         } catch (e: Exception) {
             return false
         }
     }
+
 }

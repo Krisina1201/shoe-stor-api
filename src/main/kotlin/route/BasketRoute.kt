@@ -13,6 +13,13 @@ data class Basket(
     var count: Int
 )
 
+@Serializable
+data class SneakersInBasket(
+    val sneakers: Sneakers?,
+    var countInBasket: Int
+)
+
+
 
 var basketList = mutableListOf(
     Basket(
@@ -48,9 +55,9 @@ fun Route.basketRoute() {
         try {
             val loginRequest = call.receive<Basket>()
 
-            basketRepository.addInBasket(loginRequest)
+            val result = basketRepository.addInBasket(loginRequest)
 
-            call.respond(true)
+            call.respond(result)
         } catch (e: Exception) {
             call.respond(false)
         }
@@ -60,9 +67,9 @@ fun Route.basketRoute() {
         try {
             val loginRequest = call.receive<Basket>()
 
-            basketRepository.deleteInBasket(loginRequest)
+            val result = basketRepository.deleteInBasket(loginRequest)
 
-            call.respond(true)
+            call.respond(result)
         } catch (e: Exception) {
             call.respond(false)
         }
